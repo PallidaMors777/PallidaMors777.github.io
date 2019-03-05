@@ -1,15 +1,23 @@
-head {
+body {
 	border-style: solid;
 	border-color: red;
-	font-family: fantasy;
-	background-color: red;
-}
-body {
+	display: inline-block;
+	padding: 0px 10px 10px;
 	font-family: monospace;
 }
-h1, h2 {
-	font-color:red;
+hr{
+
+}
+h1 {
+	color: red;
+	font-family: fantasy;
+	font-size: 40px;
 }
 p {
-	font-weight:lighter;
+	font-weight: lighter;
+	text-align: center;
+}
+img {
+	display:block;
+	margin:auto;
 }
