@@ -1,69 +1,82 @@
-// TODO(you): Modify the class in whatever ways necessary to implement
-// the flashcard app behavior.
+// This class will represent the menu screen that you see when you first load
+// the music visualizer.
 //
-// You may need to do things such as:
-// - Changing the constructor parameters
-// - Adding methods
-// - Adding additional fields
+// See HW4 writeup for more hints and details.
+class MenuScreen {
+  constructor(container, submit) {
+    // TODO(you): Implement the constructor and add fields as necessary.
+    this.container = container;
+    this.submit = submit;
 
-class MenuScreen
-{
-  constructor(element) {
-    this.element = element;
-    this.object = [];
-    
-    this.createMenu();
+    this.selector = this.container.querySelector('#song-selector');
+    this.theme = this.container.querySelector('#query-input');
+    this.errorMsg = this.container.querySelector('#error');
+
+    this.theme.addEventListener('input', () => this.errorMsg.classList.add('inactive'));
+    this._fetchSongs();
+    this._renderTheme();
+    this._onSubmit();
+  }
+  // TODO(you): Add methods as necessary.
+
+  _fetchSongs() {
+    fetch('https://fullstackccu.github.io/homeworks/hw4/songs.json')
+      .then(Response => Response.json())
+      .then(value => {
+        this.songs = Object.keys(value).map(key => value[key]);
+        this._renderOptions();
+      });
   }
 
-  show()
-  {
-    this.element.classList.remove('inactive');
+  _renderOptions() {
+    this.songs.forEach(value => {
+      const choice = document.createElement('option');
+      choice.textContent = `${value.artist}: ${value.title}`;
+      this.selector.appendChild(choice);
+    });
   }
 
-  hide()
-  {
-    this.element.classList.add('inactive');
-  }
-  
-  createMenu()
-  {
-    for(const source of FLASHCARD_DECKS)
-    {
-      const menu = new Menu(this.element, source.title);
-      this.object.push(menu);
-    }
-  }
-}
-
-class Menu
-{
-  constructor(element, menuTitle)
-  {
-    this.element = element.querySelector('#choices');
-    this.title = menuTitle;
-    this.index = -1;
-
-    this.changeMain = this.changeMain.bind(this);
-
-    this.divi = document.createElement('div');
-    this.divi.textContent = this.title;
-    this.divi.addEventListener('click', this.changeMain);
-    this.element.append(this.divi);
+  _onSubmit() {
+    const form = document.querySelector('form');
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const gifValue = this.theme.value.trim();
+      const data = {
+        songValue: this.songs[this.selector.selectedIndex].songUrl,
+        gifValue: (gifValue === '') ? this._randomTheme() : gifValue,
+      };
+      console.log('form submitted! data:');
+      console.log(data);
+      this.submit(data);
+    })
   }
 
-  changeMain()
-  {
-    this.index = FLASHCARD_DECKS.map(function(item)
-    {
-      return item.title;
-    }).indexOf(this.title);
+  _renderTheme() {
+    this.theme.value = this._randomTheme();
+  }
+  _randomTheme() {
+    const themes = [
+      'candy',
+      'charlie brown',
+      'computers',
+      'dance',
+      'donuts',
+      'hello kitty',
+      'flowers',
+      'nature',
+      'turtles',
+      'space'
+    ];
+    const randIndex = Math.floor(Math.random() * themes.length);
+    return themes[randIndex];
+  }
 
-    document.dispatchEvent(new CustomEvent('show-main',
-    {
-      detail:
-      {
-        titleIndex: this.index
-      }
-    }));
+  hide() {
+    this.container.classList.add('inactive');
+  }
+
+  error() {
+    this.container.classList.remove('inactive');
+    this.errorMsg.classList.remove('inactive');
   }
 }
